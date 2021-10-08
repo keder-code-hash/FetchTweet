@@ -27,11 +27,8 @@ app.use('/twitter',tweetByPlace);
 app.use('/twitter',tweetByTag);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  res.status(404).send({
-    status:"404",
-    messege:"Bad Request"
-  })
+app.use(function(req, res, next) { 
+  next(createError(404));
 });
 
 // error handler
@@ -42,7 +39,10 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.status(404).send({
+    status:"404",
+    messege:"Bad Request"
+  })
 });
 
 module.exports = app;
