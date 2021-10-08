@@ -38,7 +38,7 @@ router.get('/user/:user_name',(req,res,next)=>{
                     }
                 }).then((r)=>{
                     const tweets=[];
-                    if(r.body.data.lenght!==0){
+                    if(r.body.data.length!==0){
                         for(var i=0;i<r.body.data.length;i++){
                             tweets.push(
                                 {
