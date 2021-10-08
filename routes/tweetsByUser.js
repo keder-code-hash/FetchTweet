@@ -5,11 +5,9 @@ var needle=require('needle');
 dotenv.config();
 const bearerToken=process.env.bearerToken
 
-
 router.get('/user/:user_name',(req,res,next)=>{
     
     var endPointUrl=`https://api.twitter.com/2/tweets/search/recent?query=from:${req.params.user_name}&max_results=13&tweet.fields=created_at&expansions=author_id&user.fields=created_at,public_metrics,description`
-    
 
     needle ('get', endPointUrl,{
         headers: {
@@ -31,26 +29,35 @@ router.get('/user/:user_name',(req,res,next)=>{
                         "message": "tweets not found"
                     })
                 }
-
-                const tweets=[];
-                for(var i=0;i<response.body.data.length;i++){
-                    tweets.push(
-                        {
-                            "created_at":response.body.data[i].created_at,
-                            "text":response.body.data[i].text
+                var userId=response.body.includes.users[0].id;
+                var newEnd=`https://api.twitter.com/2/users/${userId}/tweets?expansions=author_id&tweet.fields=created_at`
+                needle ('get', newEnd,{
+                    headers: {
+                        "User-Agent": "v2RecentSearchJS",
+                        "authorization": `Bearer ${bearerToken}`
+                    }
+                }).then((r)=>{
+                    const tweets=[];
+                    if(r.body.data.lenght!==0){
+                        for(var i=0;i<r.body.data.length;i++){
+                            tweets.push(
+                                {
+                                    "created_at":r.body.data[i].created_at,
+                                    "text":r.body.data[i].text
+                                }
+                            )
                         }
-                    )
-                }
-                const resBody={
-                    "user_name":response.body.includes.users[0].name,
-                    "user_screen_name":req.params.user_name,
-                    "followers_count":response.body.includes.users[0].public_metrics.followers_count,
-                    "friends_count": response.body.includes.users[0].public_metrics.following_count,
-                    "tweets":tweets
-                }
-                res.statusCode=200;
-                res.setHeader("Content-Type","application/json");
-                res.status(200).send(resBody);
+                    }
+                    const resBody={
+                        "user_name":response.body.includes.users[0].name,
+                        "user_screen_name":req.params.user_name,
+                        "followers_count":response.body.includes.users[0].public_metrics.followers_count,
+                        "friends_count": response.body.includes.users[0].public_metrics.following_count,
+                        "tweets":tweets
+                    }
+                    res.status(200).send(resBody);
+                })
+                
             }
             else{
                 res.status(404).send({
