@@ -39,10 +39,8 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.status(404).send({
-    status:"404",
-    messege:"Bad Request"
-  })
+  res.statusCode=400;
+  res.json({status:400,message: "Bad Request."});
 });
 
 module.exports = app;
