@@ -1,3 +1,5 @@
+/** http://localhost:3000/twitter/location?latitude=22.5726&longitude=88.3639&radius=12km */
+
 var express = require('express');
 var router = express.Router();
 const dotenv = require("dotenv");
